@@ -5,7 +5,7 @@ services:
   - docker
 
 before_install:
-  - docker build -t maxipaolucci/docker-react -f frontend/Dockerfile.dev ./frontend
+  - docker build -t maxipaolucci/docker-react -f Dockerfile.dev .
 
 script:
   # CI=true to tell docker to not run in watch mode and exit the test script when test finish running
