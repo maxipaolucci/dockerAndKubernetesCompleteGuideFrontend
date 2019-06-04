@@ -1,0 +1,33 @@
+# needs sudo to run docker
+sudo: required
+services:
+  # travis installs docker
+  - docker
+
+before_install:
+  - docker build -t maxipaolucci/docker-react -f frontend/Dockerfile.dev ./frontend
+
+script:
+  # CI=true to tell docker to not run in watch mode and exit the test script when test finish running
+  - docker run -e CI=true maxipaolucci/docker-react npm run test -- --coverage
+
+deploy:
+    # travis has integracions with AWS, providing the service name is enough to travis to find it
+    provider: elasticbeanstalk
+    # the region can be found in the app url created by AWS when we created the app:  DockerReact-env.s23cypvida.us-east-2.elasticbeanstalk.com
+    region: "us-east-2"
+    app: "docker-react"
+    env: "DockerReact-env"
+    # the bucket is basically a hardrive (S3 bucket) in AWS where travis is going to copy the deploy package zipfile
+    # this bucket is going to be reuse for all the env that we will create.
+    # look in "Service > S3 Scalable storage in the cloud"
+    bucket_name: "elasticbeanstalk-us-east-2-782522910439"
+    # by default the same as app name
+    bucket_path: "docker-react"
+    on:
+      #deploy just when we push on master 
+      branch: master
+    # these keys we stored as env vars in travis, and generated in aws services > IAM, check lesson "91 Automated deployments"
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key:
+      secure: "$AWS_SECRET_KEY"
